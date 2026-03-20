@@ -1,0 +1,33 @@
+### MacOS ###
+.DS_*
+
+### Node ###
+node_modules
+build
+*.log*
+
+### Java ###
+*.class
+/target/
+/mvnw
+/bin/
+.classpath
+.mvn/
+/mvnw.cmd
+.project
+
+### Eclipse ###
+.settings
+.externalToolBuilders
+*.launch
+.factorypath
+.apt_generated
+
+### Visual Studio Code ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.history
