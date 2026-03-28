@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,9 +40,36 @@ public class Property {
     private Double latitude;
     private Double longitude;
 
+    private Integer rooms; // Total number of rooms
     private Integer bedrooms;
     private Integer bathrooms;
+    private Integer yearBuilt;
     private Double squareFootage;
+
+    private Boolean hasTerrace;
+    private Boolean hasPool;
+    private Boolean hasYard;
+    private Double annualRent; // Annual rent income
+    private Double annualExpenses; // Annual expenses
+
+    private Double yield; // Net yield percentage for Plex properties
+
+    private Double capRate; // Cap rate = (annualRent - annualExpenses) / price * 100
+
+    @Enumerated(EnumType.STRING)
+    private BusinessType businessType; // For commercial properties: RESTAURANT, STORE, OFFICE, etc.
+
+    private Integer favoriteCount = 0;
+    private Boolean isFavorite = false;
+
+    private Integer viewCount = 0;
+
+    private LocalDate moveInDate;
+
+    private LocalDateTime publishDate;
+
+    @Enumerated(EnumType.STRING)
+    private PropertyStatus status = PropertyStatus.PENDING;
 
     @Enumerated(EnumType.STRING)
     private PropertyType type; // HOUSE, CONDO, PLEX, COMMERCIAL
@@ -140,6 +168,14 @@ public class Property {
         this.longitude = longitude;
     }
 
+    public Integer getRooms() {
+        return rooms;
+    }
+
+    public void setRooms(Integer rooms) {
+        this.rooms = rooms;
+    }
+
     public Integer getBedrooms() {
         return bedrooms;
     }
@@ -156,6 +192,14 @@ public class Property {
         this.bathrooms = bathrooms;
     }
 
+    public Integer getYearBuilt() {
+        return yearBuilt;
+    }
+
+    public void setYearBuilt(Integer yearBuilt) {
+        this.yearBuilt = yearBuilt;
+    }
+
     public Double getSquareFootage() {
         return squareFootage;
     }
@@ -164,12 +208,87 @@ public class Property {
         this.squareFootage = squareFootage;
     }
 
+    public Boolean getHasTerrace() {
+        return hasTerrace;
+    }
+
+    public void setHasTerrace(Boolean hasTerrace) {
+        this.hasTerrace = hasTerrace;
+    }
+
+    public Boolean getHasPool() {
+        return hasPool;
+    }
+
+    public void setHasPool(Boolean hasPool) {
+        this.hasPool = hasPool;
+    }
+
+    public Boolean getHasYard() {
+        return hasYard;
+    }
+
+    public void setHasYard(Boolean hasYard) {
+        this.hasYard = hasYard;
+    }
+
+    public Double getAnnualRent() {
+        return annualRent;
+    }
+
+    public void setAnnualRent(Double annualRent) {
+        this.annualRent = annualRent;
+    }
+
+    public Double getAnnualExpenses() {
+        return annualExpenses;
+    }
+
+    public void setAnnualExpenses(Double annualExpenses) {
+        this.annualExpenses = annualExpenses;
+    }
+
+    public Double getCapRate() {
+        return capRate;
+    }
+
+    public void setCapRate(Double capRate) {
+        this.capRate = capRate;
+    }
+
+    private void calculateCapRate() {
+        if (annualRent != null && annualExpenses != null && price != null && price.doubleValue() > 0) {
+            double netIncome = annualRent - annualExpenses;
+            double rawCapRate = (netIncome / price.doubleValue()) * 100;
+            // Round to 2 decimal places to ensure consistent sorting
+            this.capRate = Math.round(rawCapRate * 100.0) / 100.0;
+        } else {
+            this.capRate = null;
+        }
+    }
+
+    public Double getYield() {
+        return yield;
+    }
+
+    public void setYield(Double yield) {
+        this.yield = yield;
+    }
+
     public PropertyType getType() {
         return type;
     }
 
     public void setType(PropertyType type) {
         this.type = type;
+    }
+
+    public BusinessType getBusinessType() {
+        return businessType;
+    }
+
+    public void setBusinessType(BusinessType businessType) {
+        this.businessType = businessType;
     }
 
     public ListingType getListingType() {
@@ -212,23 +331,81 @@ public class Property {
         this.updatedAt = updatedAt;
     }
 
+    public LocalDateTime getPublishDate() {
+        return publishDate;
+    }
+
+    public void setPublishDate(LocalDateTime publishDate) {
+        this.publishDate = publishDate;
+    }
+
+    public PropertyStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(PropertyStatus status) {
+        this.status = status;
+    }
+
+    public Integer getFavoriteCount() {
+        return favoriteCount;
+    }
+
+    public void setFavoriteCount(Integer favoriteCount) {
+        this.favoriteCount = favoriteCount;
+    }
+
+    public Integer getViewCount() {
+        return viewCount;
+    }
+
+    public void setViewCount(Integer viewCount) {
+        this.viewCount = viewCount;
+    }
+
+    public LocalDate getMoveInDate() {
+        return moveInDate;
+    }
+
+    public void setMoveInDate(LocalDate moveInDate) {
+        this.moveInDate = moveInDate;
+    }
+
+    public Boolean getIsFavorite() {
+        return isFavorite;
+    }
+
+    public void setIsFavorite(Boolean isFavorite) {
+        this.isFavorite = isFavorite;
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        calculateCapRate();
     }
 
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+        calculateCapRate();
     }
 
     public enum PropertyType {
         HOUSE, CONDO, PLEX, COMMERCIAL
     }
 
+    public enum BusinessType {
+        RESTAURANT, STORE, OFFICE, RETAIL, INDUSTRIAL, MEDICAL, OTHER
+    }
+
     public enum ListingType {
         FOR_SALE, FOR_RENT
+    }
+
+    public enum PropertyStatus {
+        PENDING, APPROVED, REFUSED
     }
 
     // Builder Pattern Implementation

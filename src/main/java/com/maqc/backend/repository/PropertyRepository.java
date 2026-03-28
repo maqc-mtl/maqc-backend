@@ -1,6 +1,8 @@
 package com.maqc.backend.repository;
 
 import com.maqc.backend.model.Property;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -12,4 +14,6 @@ public interface PropertyRepository extends JpaRepository<Property, Long>, JpaSp
     List<Property> findByArea(String area);
 
     List<Property> findByListingType(Property.ListingType listingType);
+
+    Page<Property> findByIsFavoriteTrue(Pageable pageable);
 }

@@ -27,6 +27,7 @@ public class PropertyController {
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "area", required = false) String area,
             @RequestParam(value = "type", required = false) Property.PropertyType type,
+            @RequestParam(value = "businessType", required = false) Property.BusinessType businessType,
             @RequestParam(value = "listingType", required = false) Property.ListingType listingType,
             @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
             @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
@@ -37,12 +38,15 @@ public class PropertyController {
                 keyword,
                 area,
                 type,
+                businessType,
                 listingType,
                 minPrice,
                 maxPrice,
                 minBedrooms,
                 minBathrooms,
+                Property.PropertyStatus.APPROVED,
                 pageable));
+
     }
 
     @GetMapping("/public")
@@ -71,6 +75,22 @@ public class PropertyController {
     public ResponseEntity<Void> deleteProperty(@PathVariable("id") Long id) {
         service.deleteProperty(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/favorite")
+    public ResponseEntity<Property> toggleFavorite(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(service.toggleFavorite(id));
+    }
+
+    @PostMapping("/{id}/view")
+    public ResponseEntity<Property> incrementViewCount(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(service.incrementViewCount(id));
+    }
+
+    @GetMapping("/favorites")
+    public ResponseEntity<Page<Property>> getFavoriteProperties(
+            @PageableDefault(size = 12) Pageable pageable) {
+        return ResponseEntity.ok(service.getFavoriteProperties(pageable));
     }
 
     @PostMapping("/{id}/contact")

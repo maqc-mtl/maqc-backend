@@ -32,9 +32,10 @@ public class EmailService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+        // helper.setTo(toEmail);
         helper.setTo("daiandre11301@gmail.com");
         helper.setSubject(subject);
-        helper.setFrom("andre19880808@gmail.com");
+        helper.setFrom("infomaqc@gmail.com");
 
         // Build the email content
         Map<String, Object> variables = new HashMap<>();
@@ -61,8 +62,9 @@ public class EmailService {
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        System.out.println("toEmail:" + toEmail);
 
-        helper.setTo(toEmail);
+        helper.setTo("daiandre11301@gmail.com");
         helper.setSubject(subject);
         helper.setFrom("infomaqc@gmail.com");
 
@@ -76,176 +78,233 @@ public class EmailService {
     private String buildReceiptEmailTemplate(User user, String planType) {
         String userName = user.getFirstName() + " " + user.getLastName();
         String planPrice = getPlanPrice(planType);
-        String purchaseDate = java.time.LocalDate.now().toString();
-        String receiptNumber = "MAQC-" + (System.currentTimeMillis() % 1000000);
+        String purchaseDate = java.time.format.DateTimeFormatter.ofPattern("MMMM d, yyyy")
+                .format(java.time.LocalDate.now());
+        String receiptNumber = "MAQC-" + (System.currentTimeMillis() % 10000000);
 
         String template = """
                 <!DOCTYPE html>
                 <html>
                 <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <style>
                         body {
-                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-                            line-height: 1.6;
-                            color: #333;
+                            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                            line-height: 1.5;
+                            color: #1e293b;
+                            background-color: #f8fafc;
+                            margin: 0;
+                            padding: 0;
+                            -webkit-font-smoothing: antialiased;
+                        }
+                        .container {
                             max-width: 600px;
-                            margin: 0 auto;
-                            padding: 20px;
+                            margin: 40px auto;
+                            background-color: #ffffff;
+                            border-radius: 20px;
+                            overflow: hidden;
+                            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
                         }
                         .header {
+                            background-color: #1a1a6d;
                             background: linear-gradient(135deg, #1a1a6d 0%, #2563eb 100%);
-                            color: white;
-                            padding: 30px;
-                            border-radius: 10px 10px 0 0;
+                            padding: 40px 40px;
                             text-align: center;
+                            color: #ffffff;
                         }
                         .header h1 {
                             margin: 0;
                             font-size: 24px;
-                            font-weight: 700;
+                            font-weight: 800;
+                            letter-spacing: -0.025em;
+                            text-transform: uppercase;
+                        }
+                        .header p {
+                            margin: 10px 0 0;
+                            font-size: 14px;
+                            opacity: 0.9;
+                            font-weight: 500;
                         }
                         .content {
-                            background: #f8fafc;
-                            padding: 30px;
-                            border-radius: 0 0 10px 10px;
-                            border: 1px solid #e2e8f0;
-                            border-top: none;
+                            padding: 40px;
                         }
-                        .section {
-                            margin-bottom: 25px;
+                        .greeting {
+                            font-size: 18px;
+                            font-weight: 700;
+                            margin-bottom: 24px;
+                            color: #0f172a;
+                        }
+                        .summary-box {
+                            background-color: #f1f5f9;
+                            border-radius: 16px;
+                            padding: 24px;
+                            margin-bottom: 32px;
+                            text-align: center;
+                        }
+                        .summary-label {
+                            font-size: 12px;
+                            font-weight: 800;
+                            color: #64748b;
+                            text-transform: uppercase;
+                            letter-spacing: 0.1em;
+                            margin-bottom: 8px;
+                        }
+                        .summary-value {
+                            font-size: 32px;
+                            font-weight: 800;
+                            color: #1a1a6d;
+                            letter-spacing: -0.02em;
                         }
                         .section-title {
-                            font-size: 14px;
+                            font-size: 11px;
+                            font-weight: 800;
+                            color: #94a3b8;
+                            text-transform: uppercase;
+                            letter-spacing: 0.1em;
+                            margin-bottom: 16px;
+                            border-bottom: 1px solid #e2e8f0;
+                            padding-bottom: 8px;
+                        }
+                        .grid {
+                            display: table;
+                            width: 100%;
+                            table-layout: fixed;
+                            margin-bottom: 24px;
+                        }
+                        .grid-item {
+                            display: table-cell;
+                            padding-bottom: 20px;
+                        }
+                        .label {
+                            font-size: 11px;
                             font-weight: 700;
                             color: #64748b;
                             text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                            margin-bottom: 10px;
-                        }
-                        .info-grid {
-                            display: grid;
-                            grid-template-columns: 1fr 1fr;
-                            gap: 15px;
-                        }
-                        .info-item {
-                            background: white;
-                            padding: 12px;
-                            border-radius: 8px;
-                            border: 1px solid #e2e8f0;
-                        }
-                        .info-label {
-                            font-size: 11px;
-                            color: #94a3b8;
-                            text-transform: uppercase;
-                            letter-spacing: 0.5px;
                             margin-bottom: 4px;
                         }
-                        .info-value {
+                        .value {
                             font-size: 14px;
-                            color: #1e293b;
                             font-weight: 600;
+                            color: #1e293b;
                         }
-                        .total-row {
-                            background: #f0f9ff;
-                            padding: 15px;
-                            border-radius: 8px;
-                            border: 1px solid #bae6fd;
-                            margin-top: 10px;
+                        .details-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 8px;
+                        }
+                        .details-table td {
+                            padding: 12px 0;
+                            border-bottom: 1px solid #f1f5f9;
+                        }
+                        .details-table .item-name {
+                            font-size: 14px;
+                            font-weight: 600;
+                            color: #1e293b;
+                        }
+                        .details-table .item-price {
+                            text-align: right;
+                            font-size: 14px;
+                            font-weight: 700;
+                            color: #1e293b;
+                        }
+                        .button-container {
+                            margin-top: 40px;
+                            text-align: center;
+                        }
+                        .button {
+                            display: inline-block;
+                            background-color: #1a1a6d;
+                            color: #ffffff !important;
+                            padding: 16px 32px;
+                            border-radius: 12px;
+                            font-size: 14px;
+                            font-weight: 700;
+                            text-decoration: none;
+                            text-transform: uppercase;
+                            letter-spacing: 0.05em;
+                            box-shadow: 0 4px 6px -1px rgba(26, 26, 109, 0.2);
                         }
                         .footer {
+                            padding: 30px 40px;
                             text-align: center;
-                            margin-top: 30px;
-                            padding-top: 20px;
+                            background-color: #f8fafc;
                             border-top: 1px solid #e2e8f0;
+                        }
+                        .footer p {
                             font-size: 12px;
                             color: #94a3b8;
+                            margin: 4px 0;
                         }
-                        .welcome-box {
-                            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                            color: white;
-                            padding: 20px;
-                            border-radius: 10px;
-                            text-align: center;
-                            margin-bottom: 20px;
+                        .footer a {
+                            color: #1a1a6d;
+                            text-decoration: none;
+                            font-weight: 600;
                         }
-                        .welcome-box h2 {
-                            margin: 0 0 5px 0;
-                            font-size: 20px;
-                        }
-                        .welcome-box p {
-                            margin: 0;
-                            opacity: 0.9;
+                        @media only screen and (max-width: 480px) {
+                            .content { padding: 24px; }
+                            .grid-item { display: block; width: 100%; }
                         }
                     </style>
                 </head>
                 <body>
-                    <div class="header">
-                        <h1>🧾 Payment Receipt</h1>
-                    </div>
-                    <div class="content">
-                        <div class="welcome-box">
-                            <h2>Welcome to MAQC!</h2>
-                            <p>Your membership is now active</p>
+                    <div class="container">
+                        <div class="header">
+                            <h1>MAQC RECEIPT</h1>
+                            <p>Transaction ID: [[receiptNumber]]</p>
                         </div>
+                        <div class="content">
+                            <div class="greeting">Hi [[userName]],</div>
+                            <p style="margin-bottom: 24px; color: #64748b; font-size: 14px;">Thank you for your purchase! Your membership is now active and you can enjoy full access to our platform.</p>
 
-                        <div class="section">
-                            <div class="section-title">Billing Information</div>
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <div class="info-label">Customer</div>
-                                    <div class="info-value">[[userName]]</div>
+                            <div class="summary-box">
+                                <div class="summary-label">Total Amount Paid</div>
+                                <div class="summary-value">[[planPrice]]</div>
+                            </div>
+
+                            <div class="section-title">Order Information</div>
+                            <table class="details-table">
+                                <tr>
+                                    <td class="item-name">[[planType]] Membership</td>
+                                    <td class="item-price">[[planPrice]]</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 700; padding-top: 20px;">Total</td>
+                                    <td style="text-align: right; font-weight: 800; font-size: 18px; color: #1a1a6d; padding-top: 20px;">[[planPrice]]</td>
+                                </tr>
+                            </table>
+
+                            <div class="section-title" style="margin-top: 32px;">Billing Details</div>
+                            <div class="grid">
+                                <div class="grid-item">
+                                    <div class="label">Customer</div>
+                                    <div class="value">[[userName]]</div>
                                 </div>
-                                <div class="info-item">
-                                    <div class="info-label">Email</div>
-                                    <div class="info-value">[[userEmail]]</div>
-                                </div>
-                                <div class="info-item">
-                                    <div class="info-label">Date</div>
-                                    <div class="info-value">[[purchaseDate]]</div>
-                                </div>
-                                <div class="info-item">
-                                    <div class="info-label">Receipt #</div>
-                                    <div class="info-value">[[receiptNumber]]</div>
+                                <div class="grid-item">
+                                    <div class="label">Payment Date</div>
+                                    <div class="value">[[purchaseDate]]</div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="section">
-                            <div class="section-title">Order Details</div>
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <div class="info-label">Plan</div>
-                                    <div class="info-value">[[planType]] Membership</div>
+                            <div class="grid">
+                                <div class="grid-item">
+                                    <div class="label">Email</div>
+                                    <div class="value">[[userEmail]]</div>
                                 </div>
-                                <div class="info-item">
-                                    <div class="info-label">Amount</div>
-                                    <div class="info-value">[[planPrice]]</div>
+                                <div class="grid-item">
+                                    <div class="label">Status</div>
+                                    <div class="value" style="color: #059669;">Success</div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="total-row">
-                            <div class="flex justify-between items-center">
-                                <span style="font-weight: 700; font-size: 16px;">Total Paid</span>
-                                <span style="font-weight: 700; font-size: 24px; color: #059669;">[[planPrice]]</span>
+                            <div class="button-container">
+                                <a href="http://localhost:5173/dashboard" class="button">Go to My Dashboard</a>
                             </div>
                         </div>
-
-                        <div class="section" style="margin-top: 30px;">
-                            <div class="info-item" style="background: #fef3c7; border-color: #fbbf24;">
-                                <div class="info-label" style="color: #92400e;">Important</div>
-                                <div class="info-value" style="color: #92400e;">
-                                    Your membership is now active. You can log in to your account and start using all the premium features!
-                                </div>
-                            </div>
+                        <div class="footer">
+                            <p>Questions? Contact our support team at <a href="mailto:support@maqc.ca">support@maqc.ca</a></p>
+                            <p>&copy; 2026 MAQC.ca - Quebec's Real Estate Platform</p>
+                            <p><a href="http://localhost:5173">www.maqc.ca</a></p>
                         </div>
-                    </div>
-                    <div class="footer">
-                        <p>This receipt was automatically generated by MAQC.ca</p>
-                        <p>© 2026 MAQC.ca All rights reserved</p>
-                        <p style="margin-top: 10px;">
-                            <a href="http://localhost:3000" style="color: #1a1a6d;">Go to MAQC.ca</a>
-                        </p>
                     </div>
                 </body>
                 </html>
@@ -275,132 +334,175 @@ public class EmailService {
                 <!DOCTYPE html>
                 <html>
                 <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <style>
                         body {
-                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-                            line-height: 1.6;
-                            color: #333;
+                            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                            line-height: 1.5;
+                            color: #1e293b;
+                            background-color: #f8fafc;
+                            margin: 0;
+                            padding: 0;
+                            -webkit-font-smoothing: antialiased;
+                        }
+                        .container {
                             max-width: 600px;
-                            margin: 0 auto;
-                            padding: 20px;
+                            margin: 40px auto;
+                            background-color: #ffffff;
+                            border-radius: 20px;
+                            overflow: hidden;
+                            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
                         }
                         .header {
+                            background-color: #1a1a6d;
                             background: linear-gradient(135deg, #1a1a6d 0%, #2563eb 100%);
-                            color: white;
-                            padding: 30px;
-                            border-radius: 10px 10px 0 0;
+                            padding: 40px 40px;
                             text-align: center;
+                            color: #ffffff;
                         }
                         .header h1 {
                             margin: 0;
                             font-size: 24px;
-                            font-weight: 700;
+                            font-weight: 800;
+                            letter-spacing: -0.025em;
+                            text-transform: uppercase;
+                        }
+                        .header p {
+                            margin: 10px 0 0;
+                            font-size: 14px;
+                            opacity: 0.9;
+                            font-weight: 500;
                         }
                         .content {
-                            background: #f8fafc;
-                            padding: 30px;
-                            border-radius: 0 0 10px 10px;
-                            border: 1px solid #e2e8f0;
-                            border-top: none;
+                            padding: 40px;
                         }
-                        .section {
-                            margin-bottom: 25px;
+                        .greeting {
+                            font-size: 18px;
+                            font-weight: 700;
+                            margin-bottom: 24px;
+                            color: #0f172a;
                         }
                         .section-title {
-                            font-size: 14px;
-                            font-weight: 700;
-                            color: #64748b;
+                            font-size: 11px;
+                            font-weight: 800;
+                            color: #94a3b8;
                             text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                            margin-bottom: 10px;
+                            letter-spacing: 0.1em;
+                            margin-bottom: 16px;
+                            border-bottom: 1px solid #e2e8f0;
+                            padding-bottom: 8px;
                         }
                         .info-grid {
-                            display: grid;
-                            grid-template-columns: 1fr 1fr;
-                            gap: 15px;
+                            display: table;
+                            width: 100%;
+                            table-layout: fixed;
+                            margin-bottom: 32px;
                         }
                         .info-item {
-                            background: white;
-                            padding: 12px;
-                            border-radius: 8px;
-                            border: 1px solid #e2e8f0;
+                            display: table-cell;
+                            padding: 0 10px 20px 0;
                         }
                         .info-label {
                             font-size: 11px;
-                            color: #94a3b8;
+                            font-weight: 700;
+                            color: #64748b;
                             text-transform: uppercase;
-                            letter-spacing: 0.5px;
                             margin-bottom: 4px;
                         }
                         .info-value {
                             font-size: 14px;
-                            color: #1e293b;
                             font-weight: 600;
+                            color: #1e293b;
                         }
                         .message-box {
-                            background: white;
-                            padding: 20px;
-                            border-radius: 8px;
-                            border: 1px solid #e2e8f0;
-                            margin-top: 10px;
+                            background-color: #f1f5f9;
+                            border-radius: 16px;
+                            padding: 24px;
+                            margin-bottom: 32px;
                         }
                         .message-text {
-                            font-size: 14px;
-                            line-height: 1.7;
-                            color: #475569;
+                            font-size: 15px;
+                            line-height: 1.6;
+                            color: #334155;
+                            white-space: pre-wrap;
+                        }
+                        .button-container {
+                            margin-top: 40px;
+                            text-align: center;
                         }
                         .button {
                             display: inline-block;
-                            background: #cdcdf3;
-                            color: white;
-                            padding: 12px 24px;
-                            text-decoration: none;
-                            border-radius: 8px;
-                            font-weight: 600;
+                            background-color: #2563eb;
+                            color: #ffffff !important;
+                            padding: 16px 32px;
+                            border-radius: 12px;
                             font-size: 14px;
-                            margin-top: 20px;
+                            font-weight: 700;
+                            text-decoration: none;
+                            text-transform: uppercase;
+                            letter-spacing: 0.05em;
+                            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+                        }
+                        .important-note {
+                            background-color: #fffbeb;
+                            border: 1px solid #fde68a;
+                            border-radius: 12px;
+                            padding: 16px;
+                            margin-top: 32px;
+                            display: flex;
+                            align-items: center;
+                        }
+                        .important-note-text {
+                            font-size: 13px;
+                            color: #92400e;
+                            font-weight: 500;
                         }
                         .footer {
+                            padding: 30px 40px;
                             text-align: center;
-                            margin-top: 30px;
-                            padding-top: 20px;
+                            background-color: #f8fafc;
                             border-top: 1px solid #e2e8f0;
+                        }
+                        .footer p {
                             font-size: 12px;
                             color: #94a3b8;
+                            margin: 4px 0;
+                        }
+                        .footer a {
+                            color: #1a1a6d;
+                            text-decoration: none;
+                            font-weight: 600;
+                        }
+                        @media only screen and (max-width: 480px) {
+                            .content { padding: 24px; }
+                            .info-item { display: block; width: 100%; padding-right: 0; }
                         }
                     </style>
                 </head>
                 <body>
-                    <div class="header">
-                        <h1>🏠 New Property Inquiry</h1>
-                    </div>
-                    <div class="content">
-                        <div class="section">
-                            <div class="section-title">Property Information</div>
+                    <div class="container">
+                        <div class="header">
+                            <h1>PROPERTY INQUIRY</h1>
+                            <p>Listing ID: #[[propertyId]]</p>
+                        </div>
+                        <div class="content">
+                            <div class="greeting">Hi [[ownerName]],</div>
+                            <p style="margin-bottom: 32px; color: #64748b; font-size: 14px;">You have received a new inquiry for your property listing. Here are the details from the interested buyer:</p>
+
+                            <div class="section-title">Property Details</div>
                             <div class="info-grid">
-                                <div class="info-item">
-                                    <div class="info-label">Property</div>
+                                <div class="info-item" style="width: 60%;">
+                                    <div class="info-label">Title</div>
                                     <div class="info-value">[[propertyTitle]]</div>
                                 </div>
-                                <div class="info-item">
+                                <div class="info-item" style="width: 40%;">
                                     <div class="info-label">Address</div>
                                     <div class="info-value">[[propertyAddress]]</div>
                                 </div>
-                                <div class="info-item">
-                                    <div class="info-label">Listing ID</div>
-                                    <div class="info-value">#[[propertyId]]</div>
-                                </div>
-                                <div class="info-item">
-                                    <div class="info-label">View Property</div>
-                                    <div class="info-value">
-                                        <a href="[[propertyUrl]]" class="button" style="padding: 6px 12px; font-size: 12px;">View on MAQC</a>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
 
-                        <div class="section">
-                            <div class="section-title">Interested Buyer</div>
+                            <div class="section-title">Buyer Information</div>
                             <div class="info-grid">
                                 <div class="info-item">
                                     <div class="info-label">Name</div>
@@ -415,27 +517,27 @@ public class EmailService {
                                     <div class="info-value">[[buyerPhone]]</div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="section">
                             <div class="section-title">Message</div>
-                            <div class="message-box">
+                                <div class="message-box">
                                 <div class="message-text">[[message]]</div>
                             </div>
-                        </div>
 
-                        <div class="section">
-                            <div class="info-item" style="background: #fef3c7; border-color: #fbbf24;">
-                                <div class="info-label" style="color: #92400e;">Important</div>
-                                <div class="info-value" style="color: #92400e;">
-                                    Please respond to this inquiry within 24-48 hours for the best customer experience.
+                            <div class="button-container">
+                                <a href="[[propertyUrl]]" class="button">View Listing on MAQC</a>
+                            </div>
+
+                            <div class="important-note">
+                                <div class="important-note-text">
+                                    <strong>Recommendation:</strong> Please respond to this inquiry within 24-48 hours via the provided email or phone for the best results.
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="footer">
-                        <p>This email was sent from MAQC.ca - Quebec's Professional FSBO Real Estate Platform</p>
-                        <p>© 2026 MAQC.ca All rights reserved</p>
+                        <div class="footer">
+                            <p>This email was sent from MAQC.ca - Quebec's FSBO Platform</p>
+                            <p>&copy; 2026 MAQC.ca All rights reserved</p>
+                            <p><a href="http://localhost:5173">www.maqc.ca</a></p>
+                        </div>
                     </div>
                 </body>
                 </html>

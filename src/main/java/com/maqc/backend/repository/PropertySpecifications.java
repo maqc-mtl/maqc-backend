@@ -26,7 +26,7 @@ public class PropertySpecifications {
                     cb.like(cb.lower(root.get("title")), pattern),
                     cb.like(cb.lower(root.get("description")), pattern),
                     cb.like(cb.lower(root.get("address")), pattern),
-                    cb.like(cb.lower(root.get("city")), pattern));
+                    cb.like(cb.lower(root.get("area")), pattern));
         };
     }
 
@@ -57,5 +57,13 @@ public class PropertySpecifications {
     public static Specification<Property> hasBathroomsGreaterThanOrEqual(Integer minBathrooms) {
         return (root, query, cb) -> minBathrooms == null ? cb.conjunction()
                 : cb.greaterThanOrEqualTo(root.get("bathrooms"), minBathrooms);
+    }
+
+    public static Specification<Property> hasStatus(Property.PropertyStatus status) {
+        return (root, query, cb) -> status == null ? cb.conjunction() : cb.equal(root.get("status"), status);
+    }
+
+    public static Specification<Property> hasBusinessType(Property.BusinessType businessType) {
+        return (root, query, cb) -> businessType == null ? cb.conjunction() : cb.equal(root.get("businessType"), businessType);
     }
 }
