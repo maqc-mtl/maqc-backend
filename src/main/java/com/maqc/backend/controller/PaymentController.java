@@ -39,14 +39,14 @@ public class PaymentController {
 
         user.setPlanType(planType);
         userRepository.save(user);
-
-        // Send receipt email
-        try {
-            emailService.sendReceiptEmail(user, request.getPlanType());
-        } catch (Exception e) {
-            // Log error but don't fail the payment
-            System.err.println("Failed to send receipt email: " + e.getMessage());
-        }
+        // phrase3
+        // // Send receipt email
+        // try {
+        // emailService.sendReceiptEmail(user, request.getPlanType());
+        // } catch (Exception e) {
+        // // Log error but don't fail the payment
+        // System.err.println("Failed to send receipt email: " + e.getMessage());
+        // }
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
