@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthenticationResponse {
+    private Long id;
     private String email;
     private User.Role role;
     private User.PlanType planType;
@@ -15,6 +16,14 @@ public class AuthenticationResponse {
     private String lastName;
 
     // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -69,12 +78,18 @@ public class AuthenticationResponse {
     }
 
     public static class AuthenticationResponseBuilder {
+        private Long id;
         private String email;
         private User.Role role;
         private User.PlanType planType;
         private String phoneNumber;
         private String firstName;
         private String lastName;
+
+        public AuthenticationResponseBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
 
         public AuthenticationResponseBuilder email(String email) {
             this.email = email;
@@ -108,6 +123,7 @@ public class AuthenticationResponse {
 
         public AuthenticationResponse build() {
             AuthenticationResponse res = new AuthenticationResponse();
+            res.setId(id);
             res.setEmail(email);
             res.setRole(role);
             res.setPlanType(planType);

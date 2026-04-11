@@ -1,6 +1,7 @@
 package com.maqc.backend.controller;
 
 import com.maqc.backend.dto.ContactRequest;
+import com.maqc.backend.dto.PropertyScoreDTO;
 import com.maqc.backend.model.Property;
 import com.maqc.backend.service.EmailService;
 import com.maqc.backend.service.PropertyService;
@@ -13,6 +14,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/v1/properties")
@@ -55,15 +60,27 @@ public class PropertyController {
     }
 
     @GetMapping("/public/{id}")
-    public ResponseEntity<Property> getPropertyById(@PathVariable("id") Long id) {
+    public ResponseEntity<Property> getPropertyById(
+            @PathVariable("id") Long id,
+            @RequestHeader(value = "X-User-Id", required = false) Long userId) {
         return service.getPropertyById(id)
-                .map(ResponseEntity::ok)
+                .map(p -> {
+                    service.checkFavoriteStatus(p, userId);
+                    return ResponseEntity.ok(p);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public ResponseEntity<Property> createProperty(@RequestBody Property property) {
-        return ResponseEntity.ok(service.createProperty(property));
+    @PostMapping(consumes = { "multipart/form-data" })
+    public ResponseEntity<Property> createProperty(
+            @RequestPart("property") String propertyJson,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files) throws IOException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.findAndRegisterModules(); // Support LocalDateTime
+        Property property = mapper.readValue(propertyJson, Property.class);
+
+        return ResponseEntity.ok(service.createProperty(property, files));
     }
 
     @PutMapping("/{id}")
@@ -77,9 +94,11 @@ public class PropertyController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{id}/favorite")
-    public ResponseEntity<Property> toggleFavorite(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(service.toggleFavorite(id));
+    @PostMapping("/{userId}/{propertyId}/favorite")
+    public ResponseEntity<Property> toggleFavorite(
+            @PathVariable("propertyId") Long propertyId,
+            @PathVariable("userId") Long userId) {
+        return ResponseEntity.ok(service.toggleFavorite(propertyId, userId));
     }
 
     @PostMapping("/{id}/view")
@@ -87,10 +106,11 @@ public class PropertyController {
         return ResponseEntity.ok(service.incrementViewCount(id));
     }
 
-    @GetMapping("/favorites")
+    @GetMapping("/{userId}/favorites")
     public ResponseEntity<Page<Property>> getFavoriteProperties(
+            @PathVariable("userId") Long userId,
             @PageableDefault(size = 12) Pageable pageable) {
-        return ResponseEntity.ok(service.getFavoriteProperties(pageable));
+        return ResponseEntity.ok(service.getFavoriteProperties(userId, pageable));
     }
 
     @PostMapping("/{id}/contact")
@@ -102,21 +122,42 @@ public class PropertyController {
             throw new RuntimeException("Property owner not found");
         }
 
-        try {
-            emailService.sendContactEmail(
-                    new EmailService.ContactFormData(
-                            request.getSubject(),
-                            request.getFirstName(),
-                            request.getLastName(),
-                            request.getEmail(),
-                            request.getPhone(),
-                            request.getMessage()),
-                    property,
-                    property.getUser());
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to send email: " + e.getMessage());
-        }
+        // phrase3
+        // try {
+        // emailService.sendContactEmail(
+        // new EmailService.ContactFormData(
+        // request.getSubject(),
+        // request.getFirstName(),
+        // request.getLastName(),
+        // request.getEmail(),
+        // request.getPhone(),
+        // request.getMessage()),
+        // property,
+        // property.getUser());
+        // } catch (Exception e) {
+        // throw new RuntimeException("Failed to send email: " + e.getMessage());
+        // }
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/score")
+    public ResponseEntity<Property> updateScore(@PathVariable("id") Long id, @RequestBody PropertyScoreDTO scoreDTO) {
+        return ResponseEntity.ok(service.updateScore(id, scoreDTO));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Page<Property>> getUserProperties(
+            @PathVariable("userId") Long userId,
+            @PageableDefault(size = 12) Pageable pageable) {
+        return ResponseEntity.ok(service.getUserProperties(userId, pageable));
+    }
+
+    @GetMapping("/user/{userId}/validate-limits")
+    public ResponseEntity<Map<String, Object>> validatePlanLimits(
+            @PathVariable("userId") Long userId,
+            @RequestParam("listingType") Property.ListingType listingType,
+            @RequestParam(value = "imageCount", defaultValue = "0") int imageCount) {
+        return ResponseEntity.ok(service.validatePlanLimits(userId, listingType, imageCount));
     }
 }

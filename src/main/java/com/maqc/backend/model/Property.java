@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "properties")
@@ -34,8 +35,6 @@ public class Property {
     private String address;
 
     private String area;
-    private String province;
-    private String postalCode;
 
     private Double latitude;
     private Double longitude;
@@ -49,17 +48,21 @@ public class Property {
     private Boolean hasTerrace;
     private Boolean hasPool;
     private Boolean hasYard;
-    private Double annualRent; // Annual rent income
+    private Integer indoorParking;
+    private Integer outdoorParking;
+    private Boolean hasStove;
+    private Double annualRevenue; // Annual revenue income
     private Double annualExpenses; // Annual expenses
 
     private Double yield; // Net yield percentage for Plex properties
 
-    private Double capRate; // Cap rate = (annualRent - annualExpenses) / price * 100
+    private Double capRate; // Cap rate = (annualRevenue - annualExpenses) / price * 100
 
     @Enumerated(EnumType.STRING)
     private BusinessType businessType; // For commercial properties: RESTAURANT, STORE, OFFICE, etc.
 
     private Integer favoriteCount = 0;
+    @Transient
     private Boolean isFavorite = false;
 
     private Integer viewCount = 0;
@@ -67,6 +70,9 @@ public class Property {
     private LocalDate moveInDate;
 
     private LocalDateTime publishDate;
+
+    @Column(name = "expiration_date")
+    private LocalDateTime expirationDate;
 
     @Enumerated(EnumType.STRING)
     private PropertyStatus status = PropertyStatus.PENDING;
@@ -84,8 +90,20 @@ public class Property {
     @ElementCollection
     private List<String> imageUrls;
 
+    @Transient
+    @JsonProperty("email")
+    private String email;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    // Recommendation Score fields
+    private Double recommendationScore; // Overall score out of 10
+    private Double priceReasonablenessScore; // 0-3 points
+    private Double rentalPerformanceScore; // 0-2 points
+    private Double sellerMotivationScore; // 0-2 points
+    private Double propertyConditionScore; // 0-1.5 points
+    private Double transactionComplexityScore; // 0-1.5 points
 
     // Getters and Setters
     public Long getId() {
@@ -134,22 +152,6 @@ public class Property {
 
     public void setArea(String area) {
         this.area = area;
-    }
-
-    public String getProvince() {
-        return province;
-    }
-
-    public void setProvince(String province) {
-        this.province = province;
-    }
-
-    public String getPostalCode() {
-        return postalCode;
-    }
-
-    public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
     }
 
     public Double getLatitude() {
@@ -232,12 +234,36 @@ public class Property {
         this.hasYard = hasYard;
     }
 
-    public Double getAnnualRent() {
-        return annualRent;
+    public Integer getIndoorParking() {
+        return indoorParking;
     }
 
-    public void setAnnualRent(Double annualRent) {
-        this.annualRent = annualRent;
+    public void setIndoorParking(Integer indoorParking) {
+        this.indoorParking = indoorParking;
+    }
+
+    public Integer getOutdoorParking() {
+        return outdoorParking;
+    }
+
+    public void setOutdoorParking(Integer outdoorParking) {
+        this.outdoorParking = outdoorParking;
+    }
+
+    public Boolean getHasStove() {
+        return hasStove;
+    }
+
+    public void setHasStove(Boolean hasStove) {
+        this.hasStove = hasStove;
+    }
+
+    public Double getAnnualRevenue() {
+        return annualRevenue;
+    }
+
+    public void setAnnualRevenue(Double annualRevenue) {
+        this.annualRevenue = annualRevenue;
     }
 
     public Double getAnnualExpenses() {
@@ -257,8 +283,8 @@ public class Property {
     }
 
     private void calculateCapRate() {
-        if (annualRent != null && annualExpenses != null && price != null && price.doubleValue() > 0) {
-            double netIncome = annualRent - annualExpenses;
+        if (annualRevenue != null && annualExpenses != null && price != null && price.doubleValue() > 0) {
+            double netIncome = annualRevenue - annualExpenses;
             double rawCapRate = (netIncome / price.doubleValue()) * 100;
             // Round to 2 decimal places to ensure consistent sorting
             this.capRate = Math.round(rawCapRate * 100.0) / 100.0;
@@ -303,7 +329,7 @@ public class Property {
         return user;
     }
 
-    public void setAgent(User user) {
+    public void setUser(User user) {
         this.user = user;
     }
 
@@ -337,6 +363,14 @@ public class Property {
 
     public void setPublishDate(LocalDateTime publishDate) {
         this.publishDate = publishDate;
+    }
+
+    public LocalDateTime getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(LocalDateTime expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
     public PropertyStatus getStatus() {
@@ -379,6 +413,63 @@ public class Property {
         this.isFavorite = isFavorite;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    // Recommendation Score Getters and Setters
+    public Double getRecommendationScore() {
+        return recommendationScore;
+    }
+
+    public void setRecommendationScore(Double recommendationScore) {
+        this.recommendationScore = recommendationScore;
+    }
+
+    public Double getPriceReasonablenessScore() {
+        return priceReasonablenessScore;
+    }
+
+    public void setPriceReasonablenessScore(Double priceReasonablenessScore) {
+        this.priceReasonablenessScore = priceReasonablenessScore;
+    }
+
+    public Double getRentalPerformanceScore() {
+        return rentalPerformanceScore;
+    }
+
+    public void setRentalPerformanceScore(Double rentalPerformanceScore) {
+        this.rentalPerformanceScore = rentalPerformanceScore;
+    }
+
+    public Double getSellerMotivationScore() {
+        return sellerMotivationScore;
+    }
+
+    public void setSellerMotivationScore(Double sellerMotivationScore) {
+        this.sellerMotivationScore = sellerMotivationScore;
+    }
+
+    public Double getPropertyConditionScore() {
+        return propertyConditionScore;
+    }
+
+    public void setPropertyConditionScore(Double propertyConditionScore) {
+        this.propertyConditionScore = propertyConditionScore;
+    }
+
+    public Double getTransactionComplexityScore() {
+        return transactionComplexityScore;
+    }
+
+    public void setTransactionComplexityScore(Double transactionComplexityScore) {
+        this.transactionComplexityScore = transactionComplexityScore;
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -405,7 +496,7 @@ public class Property {
     }
 
     public enum PropertyStatus {
-        PENDING, APPROVED, REFUSED
+        PENDING, APPROVED, REFUSED, EXPIRED
     }
 
     // Builder Pattern Implementation

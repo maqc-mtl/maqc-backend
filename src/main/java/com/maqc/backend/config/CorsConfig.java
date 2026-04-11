@@ -27,7 +27,7 @@ public class CorsConfig {
                 "http://localhost:5177",
                 "http://127.0.0.1:5177",
                 "https://maqc.netlify.app",
-                "https://maqc.ca"));
+                "https://maqc.ca", "http://maqc.ca"));
 
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         config.setAllowedHeaders(Arrays.asList("*"));

@@ -25,9 +25,9 @@ public class PaymentController {
         // Stripe, PayPal, etc.
         // For this demo, we'll simulate a successful payment
 
-        // Find user by email
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + request.getEmail()));
+        String email = request.getEmail().toLowerCase().trim();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
 
         // Update user's plan type
         User.PlanType planType;
@@ -39,6 +39,7 @@ public class PaymentController {
 
         user.setPlanType(planType);
         userRepository.save(user);
+
         // phrase3
         // // Send receipt email
         // try {

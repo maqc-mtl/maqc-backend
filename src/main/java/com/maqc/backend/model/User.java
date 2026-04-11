@@ -5,6 +5,7 @@ import lombok.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -44,6 +45,12 @@ public class User {
     private String photoUrl;
 
     private String agency;
+
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;
 
     public enum Role {
         USER, ADMIN
@@ -134,6 +141,22 @@ public class User {
         this.agency = agency;
     }
 
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public LocalDateTime getResetTokenExpiry() {
+        return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
+        this.resetTokenExpiry = resetTokenExpiry;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -155,6 +178,8 @@ public class User {
         private String phoneNumber;
         private Role role;
         private PlanType planType;
+        private String resetToken;
+        private LocalDateTime resetTokenExpiry;
 
         public UserBuilder email(String email) {
             this.email = email;
@@ -191,6 +216,16 @@ public class User {
             return this;
         }
 
+        public UserBuilder resetToken(String resetToken) {
+            this.resetToken = resetToken;
+            return this;
+        }
+
+        public UserBuilder resetTokenExpiry(LocalDateTime resetTokenExpiry) {
+            this.resetTokenExpiry = resetTokenExpiry;
+            return this;
+        }
+
         public User build() {
             User user = new User();
             user.setEmail(email);
@@ -200,6 +235,8 @@ public class User {
             user.setRole(role);
             user.setPlanType(planType);
             user.setPhoneNumber(phoneNumber);
+            user.setResetToken(resetToken);
+            user.setResetTokenExpiry(resetTokenExpiry);
             return user;
         }
     }

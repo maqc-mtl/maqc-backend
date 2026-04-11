@@ -22,6 +22,7 @@ public class AdminController {
     private final NotaryRepository notaryRepository;
     private final InspectorRepository inspectorRepository;
     private final AgentRepository agentRepository;
+    private final UserRepository userRepository;
 
     // Property Management
     @GetMapping("/properties/search")
@@ -137,5 +138,16 @@ public class AdminController {
     @DeleteMapping("/agents/{id}")
     public void deleteAgent(@PathVariable Long id) {
         agentRepository.deleteById(id);
+    }
+
+    // User Management
+    @GetMapping("/users")
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @DeleteMapping("/users/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        userRepository.deleteById(id);
     }
 }
