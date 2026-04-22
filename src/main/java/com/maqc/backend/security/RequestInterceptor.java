@@ -40,6 +40,7 @@ public class RequestInterceptor implements HandlerInterceptor {
 		return (requestUri.contains("/swagger-ui/") || requestUri.contains("swagger")
 				|| requestUri.contains("/v3/api-docs")
 				|| requestUri.contains("/api/v1/auth/")
+				|| requestUri.contains("/api/v1/payments/webhook")
 				|| requestUri.contains("/api/v1/properties/public/")
 				|| requestMethods.equals("OPTIONS"));
 	}
