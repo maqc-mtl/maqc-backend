@@ -53,6 +53,11 @@ public class AdminController {
         return ResponseEntity.ok(propertyService.refuseProperty(id));
     }
 
+    @PutMapping("/properties/{id}/status")
+    public ResponseEntity<Property> updatePropertyStatus(@PathVariable Long id, @RequestParam Property.PropertyStatus status) {
+        return ResponseEntity.ok(propertyService.updatePropertyStatus(id, status));
+    }
+
     // Notary CRUD
     @GetMapping("/notaries")
     public List<Notary> getAllNotaries() {

@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
 import java.net.URI;
+import java.text.Normalizer;
 import java.util.UUID;
 
 @Service
@@ -42,8 +43,40 @@ public class S3Service {
                 .build();
     }
 
+    /**
+     * Sanitize a filename: strip accents, replace spaces/special chars with hyphens, lowercase.
+     * Example: "Théâtre - Société des poètes disparus 2026.png" → "theatre-societe-des-poetes-disparus-2026.png"
+     */
+    private String sanitizeFileName(String originalName) {
+        if (originalName == null || originalName.isBlank()) {
+            return "file";
+        }
+        // Separate the extension
+        String name = originalName;
+        String ext = "";
+        int dotIdx = originalName.lastIndexOf('.');
+        if (dotIdx > 0) {
+            name = originalName.substring(0, dotIdx);
+            ext = originalName.substring(dotIdx); // includes the dot
+        }
+        // Normalize unicode → strip diacritics (é→e, â→a, etc.)
+        String normalized = Normalizer.normalize(name, Normalizer.Form.NFD);
+        normalized = normalized.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+        // Replace any non-alphanumeric character (except hyphens) with a hyphen
+        normalized = normalized.replaceAll("[^a-zA-Z0-9\\-]", "-");
+        // Collapse multiple hyphens and trim leading/trailing hyphens
+        normalized = normalized.replaceAll("-{2,}", "-").replaceAll("^-|-$", "");
+        // Lowercase
+        normalized = normalized.toLowerCase();
+        if (normalized.isEmpty()) {
+            normalized = "file";
+        }
+        return normalized + ext.toLowerCase();
+    }
+
     public String uploadFile(MultipartFile file) throws IOException {
-        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        String sanitized = sanitizeFileName(file.getOriginalFilename());
+        String fileName = UUID.randomUUID().toString() + "_" + sanitized;
         
         try {
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()

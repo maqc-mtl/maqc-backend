@@ -123,20 +123,20 @@ public class PropertyController {
         }
 
         // phrase3
-        // try {
-        // emailService.sendContactEmail(
-        // new EmailService.ContactFormData(
-        // request.getSubject(),
-        // request.getFirstName(),
-        // request.getLastName(),
-        // request.getEmail(),
-        // request.getPhone(),
-        // request.getMessage()),
-        // property,
-        // property.getUser());
-        // } catch (Exception e) {
-        // throw new RuntimeException("Failed to send email: " + e.getMessage());
-        // }
+        try {
+            emailService.sendContactEmail(
+                    new EmailService.ContactFormData(
+                            request.getSubject(),
+                            request.getFirstName(),
+                            request.getLastName(),
+                            request.getEmail(),
+                            request.getPhone(),
+                            request.getMessage()),
+                    property,
+                    property.getUser());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send email: " + e.getMessage());
+        }
 
         return ResponseEntity.ok().build();
     }

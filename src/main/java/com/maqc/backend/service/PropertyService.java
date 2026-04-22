@@ -271,6 +271,13 @@ public class PropertyService {
         return repository.save(property);
     }
 
+    public Property updatePropertyStatus(Long id, Property.PropertyStatus status) {
+        Property property = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Property not found"));
+        property.setStatus(status);
+        return repository.save(property);
+    }
+
     public Property updateScore(Long id, PropertyScoreDTO scoreDTO) {
         Property property = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
