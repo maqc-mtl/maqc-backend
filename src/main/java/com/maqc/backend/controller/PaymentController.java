@@ -79,11 +79,20 @@ public class PaymentController {
         try {
             com.stripe.model.Event event = com.stripe.net.Webhook.constructEvent(payload, sigHeader, webhookSecret);
 
-            if ("payment_intent.succeeded".equals(event.getType())) {
-                com.stripe.model.PaymentIntent intent = (com.stripe.model.PaymentIntent) event
-                        .getDataObjectDeserializer().getObject().get();
+            com.stripe.model.EventDataObjectDeserializer deserializer = event.getDataObjectDeserializer();
 
-                // Update Transaction record
+            com.stripe.model.StripeObject stripeObject;
+            if (deserializer.getObject().isPresent()) {
+                // SDK version matches — happy path
+                stripeObject = deserializer.getObject().get();
+            } else {
+                // SDK/API version mismatch — deserialize anyway (unsafe but functional)
+                stripeObject = deserializer.deserializeUnsafe();
+            }
+
+            if ("payment_intent.succeeded".equals(event.getType())) {
+                com.stripe.model.PaymentIntent intent = (com.stripe.model.PaymentIntent) stripeObject;
+
                 List<com.maqc.backend.model.Transaction> transactions = transactionRepository
                         .findByStripePaymentIntentId(intent.getId());
                 if (!transactions.isEmpty()) {
@@ -95,11 +104,10 @@ public class PaymentController {
                 String email = intent.getMetadata().get("userEmail");
                 String planType = intent.getMetadata().get("planType");
                 updateUserPlan(email, planType);
-            } else if ("payment_intent.payment_failed".equals(event.getType())) {
-                com.stripe.model.PaymentIntent intent = (com.stripe.model.PaymentIntent) event
-                        .getDataObjectDeserializer().getObject().get();
 
-                // Update Transaction record
+            } else if ("payment_intent.payment_failed".equals(event.getType())) {
+                com.stripe.model.PaymentIntent intent = (com.stripe.model.PaymentIntent) stripeObject;
+
                 List<com.maqc.backend.model.Transaction> transactions = transactionRepository
                         .findByStripePaymentIntentId(intent.getId());
                 if (!transactions.isEmpty()) {
