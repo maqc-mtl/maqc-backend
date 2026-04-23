@@ -3,9 +3,11 @@ package com.maqc.backend.controller;
 import com.maqc.backend.dto.ContactRequest;
 import com.maqc.backend.dto.PropertyScoreDTO;
 import com.maqc.backend.model.Property;
+import com.maqc.backend.service.BrevoEmailService;
 import com.maqc.backend.service.EmailService;
 import com.maqc.backend.service.PropertyService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -22,10 +24,12 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/v1/properties")
 @RequiredArgsConstructor
+@Slf4j
 public class PropertyController {
 
     private final PropertyService service;
     private final EmailService emailService;
+    private final BrevoEmailService brevoEmailService;
 
     @GetMapping("/public/search")
     public ResponseEntity<Page<Property>> searchProperties(
@@ -124,8 +128,8 @@ public class PropertyController {
 
         // phrase3
         try {
-            emailService.sendContactEmail(
-                    new EmailService.ContactFormData(
+            brevoEmailService.sendContactEmail(
+                    new BrevoEmailService.ContactFormData(
                             request.getSubject(),
                             request.getFirstName(),
                             request.getLastName(),
@@ -135,7 +139,8 @@ public class PropertyController {
                     property,
                     property.getUser());
         } catch (Exception e) {
-            throw new RuntimeException("Failed to send email: " + e.getMessage());
+            log.error("Failed to send contact email for property {}: {}", id, e.getMessage(), e);
+            throw new RuntimeException("Failed to send email: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
         }
 
         return ResponseEntity.ok().build();
