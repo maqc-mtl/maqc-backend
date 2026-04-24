@@ -11,7 +11,7 @@ import java.util.Map;
 
 public abstract class BaseEmailService {
 
-    @Value("${app.frontend-url:https://maqc.ca}")
+    @Value("${app.frontend-url}")
     protected String frontendUrl;
 
     protected String buildPasswordResetEmailTemplate(User user, String resetUrl) {
@@ -160,7 +160,7 @@ public abstract class BaseEmailService {
                         <div class="footer">
                             <p>Questions? Contact our support team at <a href="mailto:support@maqc.ca">support@maqc.ca</a></p>
                             <p>&copy; 2026 MAQC.ca - Quebec's Real Estate Platform</p>
-                            <p><a href="http://localhost:5173">www.maqc.ca</a></p>
+                            <p><a href="[[frontendUrl]]">www.maqc.ca</a></p>
                         </div>
                     </div>
                 </body>
@@ -168,7 +168,8 @@ public abstract class BaseEmailService {
                 """;
 
         return template.replace("[[userName]]", userName)
-                .replace("[[resetUrl]]", resetUrl);
+                .replace("[[resetUrl]]", resetUrl)
+                .replace("[[frontendUrl]]", frontendUrl);
     }
 
     protected String buildReceiptEmailTemplate(User user, String planType) {
@@ -415,13 +416,13 @@ public abstract class BaseEmailService {
                             </div>
 
                             <div class="button-container">
-                                <a href="http://localhost:5173/" class="button">Go to My Dashboard</a>
+                                <a href="[[frontendUrl]]" class="button">Go to My Dashboard</a>
                             </div>
                         </div>
                         <div class="footer">
                             <p>Questions? Contact our support team at <a href="mailto:support@maqc.ca">support@maqc.ca</a></p>
                             <p>&copy; 2026 MAQC.ca - Quebec's Real Estate Platform</p>
-                            <p><a href="http://localhost:5173">www.maqc.ca</a></p>
+                            <p><a href="[[frontendUrl]]">www.maqc.ca</a></p>
                         </div>
                     </div>
                 </body>
@@ -438,6 +439,7 @@ public abstract class BaseEmailService {
         result = result.replace("[[total]]", String.valueOf(total));
         result = result.replace("[[gst]]", String.valueOf(gst));
         result = result.replace("[[qst]]", String.valueOf(qst));
+        result = result.replace("[[frontendUrl]]", frontendUrl);
         return result;
     }
 
@@ -657,7 +659,7 @@ public abstract class BaseEmailService {
                         <div class="footer">
                             <p>This email was sent from MAQC.ca - Quebec's FSBO Platform</p>
                             <p>&copy; 2026 MAQC.ca All rights reserved</p>
-                            <p><a href="http://localhost:5173">www.maqc.ca</a></p>
+                            <p><a href="[[frontendUrl]]">www.maqc.ca</a></p>
                         </div>
                     </div>
                 </body>
@@ -670,6 +672,7 @@ public abstract class BaseEmailService {
             String value = entry.getValue() != null ? entry.getValue().toString() : "";
             result = result.replace(key, value);
         }
+        result = result.replace("[[frontendUrl]]", frontendUrl);
         return result;
     }
 
