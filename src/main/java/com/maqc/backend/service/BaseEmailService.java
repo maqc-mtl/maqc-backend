@@ -11,7 +11,7 @@ import java.util.Map;
 
 public abstract class BaseEmailService {
 
-    @Value("${app.frontend-url}")
+    @Value("${app.frontend-url:https://maqc.ca}")
     protected String frontendUrl;
 
     protected String buildPasswordResetEmailTemplate(User user, String resetUrl) {
