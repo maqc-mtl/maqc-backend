@@ -11,7 +11,7 @@ import java.util.Map;
 
 public abstract class BaseEmailService {
 
-    @Value("${app.frontend-url:http://localhost:5173}")
+    @Value("${app.frontend-url}")
     protected String frontendUrl;
 
     protected String buildPasswordResetEmailTemplate(User user, String resetUrl) {
@@ -150,11 +150,11 @@ public abstract class BaseEmailService {
                         <div class="content">
                             <div class="greeting">Hi [[userName]],</div>
                             <p style="margin-bottom: 24px; color: #64748b; font-size: 14px;">We received a request to reset your password. Click the button below to create a new password. This link will expire in 24 hours.</p>
-                
+
                             <div class="button-container">
                                 <a href="[[resetUrl]]" class="button">Reset Password</a>
                             </div>
-                
+
                             <p style="margin-top: 24px; font-size: 12px; color: #94a3b8;">If you didn't request this password reset, please ignore this email or contact support if you have concerns.</p>
                         </div>
                         <div class="footer">
@@ -366,12 +366,12 @@ public abstract class BaseEmailService {
                         <div class="content">
                             <div class="greeting">Hi [[userName]],</div>
                             <p style="margin-bottom: 24px; color: #64748b; font-size: 14px;">Thank you for your purchase! Your membership is now active and you can enjoy full access to our platform.</p>
-                
+
                             <div class="summary-box">
                                 <div class="summary-label">Total Amount Paid</div>
                                 <div class="summary-value">$[[total]]</div>
                             </div>
-                
+
                             <div class="section-title">Order Information</div>
                             <table class="details-table">
                                 <tr>
@@ -391,7 +391,7 @@ public abstract class BaseEmailService {
                                     <td style="text-align: right; font-weight: 800; font-size: 18px; color: #1a1a6d; padding-top: 20px;">$[[total]]</td>
                                 </tr>
                             </table>
-                
+
                             <div class="section-title" style="margin-top: 32px;">Billing Details</div>
                             <div class="grid">
                                 <div class="grid-item">
@@ -413,7 +413,7 @@ public abstract class BaseEmailService {
                                     <div class="value" style="color: #059669;">Success</div>
                                 </div>
                             </div>
-                
+
                             <div class="button-container">
                                 <a href="http://localhost:5173/" class="button">Go to My Dashboard</a>
                             </div>
@@ -610,7 +610,7 @@ public abstract class BaseEmailService {
                         <div class="content">
                             <div class="greeting">Hi [[ownerName]],</div>
                             <p style="margin-bottom: 32px; color: #64748b; font-size: 14px;">You have received a new inquiry for your property listing. Here are the details from the interested buyer:</p>
-                
+
                             <div class="section-title">Property Details</div>
                             <div class="info-grid">
                                 <div class="info-item" style="width: 60%;">
@@ -622,7 +622,7 @@ public abstract class BaseEmailService {
                                     <div class="info-value">[[propertyAddress]]</div>
                                 </div>
                             </div>
-                
+
                             <div class="section-title">Buyer Information</div>
                             <div class="info-grid">
                                 <div class="info-item">
@@ -638,16 +638,16 @@ public abstract class BaseEmailService {
                                     <div class="info-value">[[buyerPhone]]</div>
                                 </div>
                             </div>
-                
+
                             <div class="section-title">Message</div>
                                 <div class="message-box">
                                 <div class="message-text">[[message]]</div>
                             </div>
-                
+
                             <div class="button-container">
                                 <a href="[[propertyUrl]]" class="button">View Listing on MAQC</a>
                             </div>
-                
+
                             <div class="important-note">
                                 <div class="important-note-text">
                                     <strong>Recommendation:</strong> Please respond to this inquiry within 24-48 hours via the provided email or phone for the best results.
@@ -682,10 +682,11 @@ public abstract class BaseEmailService {
         private String phone;
         private String message;
 
-        public ContactFormData() {}
+        public ContactFormData() {
+        }
 
         public ContactFormData(String subject, String firstName, String lastName, String email, String phone,
-                               String message) {
+                String message) {
             this.subject = subject;
             this.firstName = firstName;
             this.lastName = lastName;
