@@ -26,7 +26,7 @@ public class BrevoEmailService extends BaseEmailService {
     @Value("${brevo.api.key}")
     private String apiKey;
 
-    @Value("${brevo.sender.email:infomaqc@gmail.com}")
+    @Value("${brevo.sender.email:no-reply@maqc.ca}")
     private String senderEmail;
 
     @Value("${brevo.sender.name:MAQC}")
@@ -37,17 +37,17 @@ public class BrevoEmailService extends BaseEmailService {
     @PostConstruct
     public void init() {
         try {
-            log.info("Initializing BrevoEmailService with API Key: {}...", 
-                apiKey != null && apiKey.length() > 5 ? apiKey.substring(0, 5) + "***" : "null");
-            
+            log.info("Initializing BrevoEmailService with API Key: {}...",
+                    apiKey != null && apiKey.length() > 5 ? apiKey.substring(0, 5) + "***" : "null");
+
             ApiClient defaultClient = Configuration.getDefaultApiClient();
             ApiKeyAuth apiKeyAuth = (ApiKeyAuth) defaultClient.getAuthentication("api-key");
-            
+
             if (apiKeyAuth == null) {
                 log.error("Could not find 'api-key' authentication in Brevo ApiClient configuration");
                 return;
             }
-            
+
             apiKeyAuth.setApiKey(apiKey);
             apiInstance = new TransactionalEmailsApi(defaultClient);
             log.info("BrevoEmailService initialized successfully");
@@ -105,7 +105,7 @@ public class BrevoEmailService extends BaseEmailService {
 
         try {
             SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
-            
+
             SendSmtpEmailSender sender = new SendSmtpEmailSender();
             sender.setEmail(senderEmail);
             sender.setName(senderName);
@@ -124,11 +124,12 @@ public class BrevoEmailService extends BaseEmailService {
         } catch (ApiException e) {
             String errorBody = e.getResponseBody();
             log.error("Brevo API Error ({}): {}", e.getCode(), errorBody);
-            throw new Exception("Brevo API error (" + e.getCode() + "): " + 
-                (errorBody != null ? errorBody : e.getMessage()));
+            throw new Exception("Brevo API error (" + e.getCode() + "): " +
+                    (errorBody != null ? errorBody : e.getMessage()));
         } catch (Exception e) {
             log.error("Unexpected error sending Brevo email: {}", e.getMessage(), e);
-            throw new Exception("Unexpected email error: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getName()));
+            throw new Exception(
+                    "Unexpected email error: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getName()));
         }
     }
 }

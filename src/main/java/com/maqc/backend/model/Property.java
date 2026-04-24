@@ -54,6 +54,10 @@ public class Property {
     private Double annualRevenue; // Annual revenue income
     private Double annualExpenses; // Annual expenses
 
+    private String contactName;
+    private String contactPhone;
+    private Boolean showContactInfo = true;
+
     private Double yield; // Net yield percentage for Plex properties
 
     private Double capRate; // Cap rate = (annualRevenue - annualExpenses) / price * 100
@@ -90,7 +94,6 @@ public class Property {
     @ElementCollection
     private List<String> imageUrls;
 
-    @Transient
     @JsonProperty("email")
     private String email;
 
@@ -411,6 +414,30 @@ public class Property {
 
     public void setIsFavorite(Boolean isFavorite) {
         this.isFavorite = isFavorite;
+    }
+
+    public String getContactName() {
+        return contactName;
+    }
+
+    public void setContactName(String contactName) {
+        this.contactName = contactName;
+    }
+
+    public String getContactPhone() {
+        return contactPhone;
+    }
+
+    public void setContactPhone(String contactPhone) {
+        this.contactPhone = contactPhone;
+    }
+
+    public Boolean getShowContactInfo() {
+        return showContactInfo;
+    }
+
+    public void setShowContactInfo(Boolean showContactInfo) {
+        this.showContactInfo = showContactInfo;
     }
 
     public String getEmail() {

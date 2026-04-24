@@ -3,9 +3,10 @@ package com.maqc.backend.service;
 import com.maqc.backend.dto.AuthenticationRequest;
 import com.maqc.backend.dto.AuthenticationResponse;
 import com.maqc.backend.dto.RegisterRequest;
+import com.maqc.backend.exception.AdminActionForbiddenException;
+import com.maqc.backend.exception.ExpiredResetTokenException;
 import com.maqc.backend.exception.InvalidCredentialsException;
 import com.maqc.backend.exception.InvalidResetTokenException;
-import com.maqc.backend.exception.ExpiredResetTokenException;
 import com.maqc.backend.model.User;
 import com.maqc.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class AuthenticationService {
 
         private final UserRepository repository;
         private final EmailService emailService;
+        private final BrevoEmailService brevoEmailService;
 
         public AuthenticationResponse register(RegisterRequest request) {
                 String email = request.getEmail().toLowerCase().trim();
@@ -88,6 +90,10 @@ public class AuthenticationService {
                 if (userOpt.isPresent()) {
                         User user = userOpt.get();
 
+                        if (user.getRole() == User.Role.ADMIN) {
+                                throw new AdminActionForbiddenException("Administrators cannot use self-service password reset. Please contact system owner.", "ADMIN_RESET_FORBIDDEN");
+                        }
+
                         // Generate reset token
                         String resetToken = UUID.randomUUID().toString();
                         user.setResetToken(resetToken);
@@ -97,7 +103,7 @@ public class AuthenticationService {
 
                         // Send email with reset link
                         try {
-                                emailService.sendPasswordResetEmail(user);
+                                brevoEmailService.sendPasswordResetEmail(user);
                         } catch (Exception e) {
                                 throw new RuntimeException("Failed to send password reset email");
                         }

@@ -1,5 +1,6 @@
 package com.maqc.backend.controller;
 
+import com.maqc.backend.exception.AdminActionForbiddenException;
 import com.maqc.backend.exception.ExpiredResetTokenException;
 import com.maqc.backend.exception.InvalidCredentialsException;
 import com.maqc.backend.exception.InvalidResetTokenException;
@@ -38,5 +39,13 @@ public class GlobalExceptionHandler {
         }
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(AdminActionForbiddenException.class)
+    public ResponseEntity<Map<String, String>> handleAdminActionForbiddenException(AdminActionForbiddenException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        response.put("errorCode", ex.getErrorCode());
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 }

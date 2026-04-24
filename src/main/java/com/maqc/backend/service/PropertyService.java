@@ -180,6 +180,10 @@ public class PropertyService {
         property.setListingType(propertyDetails.getListingType());
         property.setImageUrls(propertyDetails.getImageUrls());
         property.setMoveInDate(propertyDetails.getMoveInDate());
+        property.setContactName(propertyDetails.getContactName());
+        property.setContactPhone(propertyDetails.getContactPhone());
+        property.setShowContactInfo(propertyDetails.getShowContactInfo());
+        property.setEmail(propertyDetails.getEmail());
 
         return repository.save(property);
     }
