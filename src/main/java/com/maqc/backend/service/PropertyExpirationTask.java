@@ -18,11 +18,12 @@ public class PropertyExpirationTask {
     private final PropertyRepository propertyRepository;
 
     // Run every hour to check for expired properties
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 1 * * *")
     public void checkExpiredProperties() {
+        System.out.println("checkExpiredProperties");
         log.info("Running property expiration check...");
         LocalDateTime now = LocalDateTime.now();
-
+        System.out.println(now);
         List<Property> expiredProperties = propertyRepository.findByStatusAndExpirationDateBefore(
                 Property.PropertyStatus.APPROVED, now);
 

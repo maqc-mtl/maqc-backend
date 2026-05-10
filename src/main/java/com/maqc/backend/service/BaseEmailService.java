@@ -1,6 +1,5 @@
 package com.maqc.backend.service;
 
-import com.maqc.backend.model.Property;
 import com.maqc.backend.model.User;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,5 +48,13 @@ public class GlobalExceptionHandler {
         response.put("message", ex.getMessage());
         response.put("errorCode", ex.getErrorCode());
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, String>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "File size exceeds the maximum allowed limit of 500KB per file.");
+        response.put("errorCode", "FILE_SIZE_EXCEEDED");
+        return new ResponseEntity<>(response, HttpStatus.PAYLOAD_TOO_LARGE);
     }
 }

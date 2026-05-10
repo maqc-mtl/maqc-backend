@@ -22,7 +22,7 @@ import java.util.UUID;
 public class AuthenticationService {
 
         private final UserRepository repository;
-        private final EmailService emailService;
+        // private final EmailService emailService;
         private final BrevoEmailService brevoEmailService;
 
         public AuthenticationResponse register(RegisterRequest request) {
@@ -91,7 +91,9 @@ public class AuthenticationService {
                         User user = userOpt.get();
 
                         if (user.getRole() == User.Role.ADMIN) {
-                                throw new AdminActionForbiddenException("Administrators cannot use self-service password reset. Please contact system owner.", "ADMIN_RESET_FORBIDDEN");
+                                throw new AdminActionForbiddenException(
+                                                "Administrators cannot use self-service password reset. Please contact system owner.",
+                                                "ADMIN_RESET_FORBIDDEN");
                         }
 
                         // Generate reset token

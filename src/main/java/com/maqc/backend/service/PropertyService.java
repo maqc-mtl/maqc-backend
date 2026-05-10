@@ -264,7 +264,7 @@ public class PropertyService {
         if (property.getUser() != null) {
             property.setExpirationDate(planLimits.calculateExpirationDate(property.getUser().getPlanType()));
         }
-
+        System.out.print("setPublishDate" + property.getPublishDate());
         return repository.save(property);
     }
 

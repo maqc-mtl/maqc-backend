@@ -26,13 +26,13 @@ public class PlanLimits {
     public Limits getLimitsForPlan(User.PlanType planType) {
         switch (planType) {
             case FREE:
-                return new Limits(2, 1, 2, 7);
+                return new Limits(2, 1, 5, 30);
             case BASIC:
-                return new Limits(3, 2, 5, 30);
+                return new Limits(3, 2, 10, 30);
             case PLUS:
-                return new Limits(6, 4, 10, 30);
+                return new Limits(6, 4, 15, 90);
             case PRO:
-                return new Limits(12, 10, 10, 30);
+                return new Limits(12, 10, 20, 180);
             default:
                 return new Limits(0, 0, 0, 0);
         }

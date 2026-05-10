@@ -28,7 +28,7 @@ import java.io.IOException;
 public class PropertyController {
 
     private final PropertyService service;
-    private final EmailService emailService;
+    // private final EmailService emailService;
     private final BrevoEmailService brevoEmailService;
 
     @GetMapping("/public/search")
@@ -126,7 +126,6 @@ public class PropertyController {
             throw new RuntimeException("Property owner not found");
         }
 
-        // phrase3
         try {
             brevoEmailService.sendContactEmail(
                     new BrevoEmailService.ContactFormData(
@@ -140,7 +139,8 @@ public class PropertyController {
                     property.getUser());
         } catch (Exception e) {
             log.error("Failed to send contact email for property {}: {}", id, e.getMessage(), e);
-            throw new RuntimeException("Failed to send email: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
+            throw new RuntimeException(
+                    "Failed to send email: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
         }
 
         return ResponseEntity.ok().build();

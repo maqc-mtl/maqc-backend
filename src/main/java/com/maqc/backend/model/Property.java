@@ -73,6 +73,7 @@ public class Property {
 
     private LocalDate moveInDate;
 
+    @Column(name = "publish_date")
     private LocalDateTime publishDate;
 
     @Column(name = "expiration_date")

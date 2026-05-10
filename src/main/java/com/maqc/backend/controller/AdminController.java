@@ -1,7 +1,9 @@
 package com.maqc.backend.controller;
 
+import com.maqc.backend.dto.ReservationRequest;
 import com.maqc.backend.model.*;
 import com.maqc.backend.repository.*;
+import com.maqc.backend.service.BrevoEmailService;
 import com.maqc.backend.service.PropertyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,7 @@ public class AdminController {
     private final InspectorRepository inspectorRepository;
     private final AgentRepository agentRepository;
     private final UserRepository userRepository;
+    private final BrevoEmailService brevoEmailService;
 
     // Property Management
     @GetMapping("/properties/search")
@@ -54,7 +57,8 @@ public class AdminController {
     }
 
     @PutMapping("/properties/{id}/status")
-    public ResponseEntity<Property> updatePropertyStatus(@PathVariable Long id, @RequestParam Property.PropertyStatus status) {
+    public ResponseEntity<Property> updatePropertyStatus(@PathVariable Long id,
+            @RequestParam Property.PropertyStatus status) {
         return ResponseEntity.ok(propertyService.updatePropertyStatus(id, status));
     }
 
@@ -154,5 +158,35 @@ public class AdminController {
     @DeleteMapping("/users/{id}")
     public void deleteUser(@PathVariable Long id) {
         userRepository.deleteById(id);
+    }
+
+    // Reservation endpoint - sends email to professional
+    @PostMapping("/reserve")
+    public void reserveProfessional(@RequestBody ReservationRequest request) throws Exception {
+        String proEmail = "";
+        String proName = "";
+
+        switch (request.getProType()) {
+            case "notary":
+                Notary notary = notaryRepository.findById(request.getProId()).orElseThrow();
+                proEmail = notary.getEmail();
+                proName = notary.getName();
+                break;
+            case "inspector":
+                Inspector inspector = inspectorRepository.findById(request.getProId()).orElseThrow();
+                proEmail = inspector.getEmail();
+                proName = inspector.getName();
+                break;
+            case "agent":
+                Agent agent = agentRepository.findById(request.getProId()).orElseThrow();
+                proEmail = agent.getEmail();
+                proName = agent.getName();
+                break;
+        }
+        System.out.println("reserveProfessional");
+        brevoEmailService.sendReservationEmail(
+                proEmail, proName, request.getProType(),
+                request.getClientName(), request.getClientEmail(), request.getClientPhone(),
+                request.getDate(), request.getTime(), request.getNotes());
     }
 }
